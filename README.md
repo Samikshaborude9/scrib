@@ -1,4 +1,4 @@
-# Scribble — Draw & Guess Game
+# Scrib
 
 A real-time multiplayer drawing game built with React, Node.js, and Socket.IO.
 
