@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #f0f2f7;
+    margin: 0;
+  }
+}
+
+@layer utilities {
+  .canvas-cursor { cursor: crosshair; }
+  .eraser-cursor { cursor: cell; }
+}
