@@ -1,20 +1,19 @@
-import { Router, Response } from 'express'
+import { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { User } from '../models/User'
-import { verifyToken, AuthRequest } from './authMiddleware'
+import { AuthRequest } from '../middlewares/verifyToken'
 
-export const authRouter = Router()
-
-const JWT_SECRET  = process.env.JWT_SECRET  || 'dev_secret'
+const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret'
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '7d'
 
 function makeToken(userId: string, username: string) {
-  return jwt.sign({ userId, username }, JWT_SECRET, { expiresIn: JWT_EXPIRES } as jwt.SignOptions)
+  return jwt.sign({ userId, username }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES,
+  } as jwt.SignOptions)
 }
 
-// POST /api/auth/register
-authRouter.post('/register', async (req, res): Promise<void> => {
+export async function register(req: Request, res: Response): Promise<void> {
   try {
     const { username, email, password } = req.body
 
@@ -35,21 +34,25 @@ authRouter.post('/register', async (req, res): Promise<void> => {
     }
 
     const hashed = await bcrypt.hash(password, 12)
-    const user   = await User.create({ username, email, password: hashed })
-    const token  = makeToken(String(user._id), user.username)
+    const user = await User.create({ username, email, password: hashed })
+    const token = makeToken(String(user._id), user.username)
 
     res.status(201).json({
       token,
-      user: { id: user._id, username: user.username, email: user.email, createdAt: user.createdAt },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+      },
     })
   } catch (err) {
     console.error('Register error:', err)
     res.status(500).json({ error: 'Server error' })
   }
-})
+}
 
-// POST /api/auth/login
-authRouter.post('/login', async (req, res): Promise<void> => {
+export async function login(req: Request, res: Response): Promise<void> {
   try {
     const { email, password } = req.body
     if (!email || !password) {
@@ -72,24 +75,33 @@ authRouter.post('/login', async (req, res): Promise<void> => {
     const token = makeToken(String(user._id), user.username)
     res.json({
       token,
-      user: { id: user._id, username: user.username, email: user.email, createdAt: user.createdAt },
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        createdAt: user.createdAt,
+      },
     })
   } catch (err) {
     console.error('Login error:', err)
     res.status(500).json({ error: 'Server error' })
   }
-})
+}
 
-// GET /api/auth/me
-authRouter.get('/me', verifyToken, async (req: AuthRequest, res: Response): Promise<void> => {
+export async function getMe(req: AuthRequest, res: Response): Promise<void> {
   try {
     const user = await User.findById(req.userId).select('-password')
     if (!user) {
       res.status(404).json({ error: 'User not found' })
       return
     }
-    res.json({ id: user._id, username: user.username, email: user.email, createdAt: user.createdAt })
+    res.json({
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+    })
   } catch {
     res.status(500).json({ error: 'Server error' })
   }
-})
+}

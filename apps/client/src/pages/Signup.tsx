@@ -22,7 +22,6 @@ export default function Signup() {
   const [form, setForm] = useState({
     username: '', email: '', password: '', confirmPassword: '',
   })
-  const [agree, setAgree]     = useState(false)
   const [error, setError]     = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -35,10 +34,6 @@ export default function Signup() {
     e.preventDefault()
     if (form.password !== form.confirmPassword) {
       setError('Passwords do not match.')
-      return
-    }
-    if (!agree) {
-      setError('You must agree to the Terms of Service.')
       return
     }
     setError('')
@@ -195,22 +190,6 @@ export default function Signup() {
               <span className="text-[11px] text-[#ff6b6b]">Passwords do not match</span>
             )}
           </div>
-
-          {/* agree */}
-          <label className="flex items-start gap-2.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={agree}
-              onChange={e => setAgree(e.target.checked)}
-              className="mt-0.5 accent-[#5ed29c] shrink-0"
-            />
-            <span className="text-[11px] text-white/35 leading-relaxed">
-              I agree to the{' '}
-              <Link to="/terms" className="text-[#5ed29c] hover:underline">Terms of Service</Link>
-              {' '}and{' '}
-              <Link to="/privacy" className="text-[#5ed29c] hover:underline">Privacy Policy</Link>
-            </span>
-          </label>
 
           {/* submit */}
           <button

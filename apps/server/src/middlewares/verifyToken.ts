@@ -12,13 +12,15 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
     res.status(401).json({ error: 'No token provided' })
     return
   }
+
   const token = header.slice(7)
   try {
     const decoded = jwt.verify(
       token,
       process.env.JWT_SECRET || 'dev_secret'
     ) as { userId: string; username: string }
-    req.userId   = decoded.userId
+
+    req.userId = decoded.userId
     req.username = decoded.username
     next()
   } catch {

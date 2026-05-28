@@ -4,7 +4,7 @@ import { Server } from 'socket.io'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
-import { authRouter } from './auth/authRoutes'
+import { authRouter } from './routes'
 import { registerSocketHandlers } from './socket/socketHandlers'
 
 dotenv.config()
