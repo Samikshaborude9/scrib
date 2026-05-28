@@ -9,7 +9,7 @@ export interface AuthRequest extends Request {
 export function verifyToken(req: AuthRequest, res: Response, next: NextFunction) {
   const header = req.headers.authorization
   if (!header?.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'No token provided' })
+    res.status(401).json({ error: 'No token provided', message: 'No token provided' })
     return
   }
 
@@ -24,6 +24,6 @@ export function verifyToken(req: AuthRequest, res: Response, next: NextFunction)
     req.username = decoded.username
     next()
   } catch {
-    res.status(401).json({ error: 'Invalid token' })
+    res.status(401).json({ error: 'Invalid token', message: 'Invalid token' })
   }
 }

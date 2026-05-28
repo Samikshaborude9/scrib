@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { useAuthStore } from '../store/useStore'
-import { api } from '../lib/api'
+import { login } from '../services/auth-service'
 
 export default function Login() {
   const navigate = useNavigate()
@@ -20,7 +20,7 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await api.post('/auth/login', form)
+      const { data } = await login(form)
       setAuth(data.user, data.token)
       navigate('/lobby')
     } catch (err: any) {

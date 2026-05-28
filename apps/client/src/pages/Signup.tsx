@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { UserPlus } from 'lucide-react'
 import { useAuthStore } from '../store/useStore'
-import { api } from '../lib/api'
+import { register } from '../services/auth-service'
 
 const getStrength = (pw: string) => {
   let s = 0
@@ -39,7 +39,7 @@ export default function Signup() {
     setError('')
     setLoading(true)
     try {
-      const { data } = await api.post('/auth/register', {
+      const { data } = await register({
         username: form.username,
         email:    form.email,
         password: form.password,
