@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { UserPlus } from 'lucide-react'
 import { useAuthStore } from '../store/useStore'
-import api from '../lib/api'
+import { api } from '../lib/api'
 
 const getStrength = (pw: string) => {
   let s = 0

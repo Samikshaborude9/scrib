@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import { useAuthStore } from '../store/useStore'
-import api from '../lib/api'
+import { api } from '../lib/api'
 
 export default function Login() {
   const navigate = useNavigate()
