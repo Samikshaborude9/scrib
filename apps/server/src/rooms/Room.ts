@@ -7,8 +7,10 @@ const ROUND_END_PAUSE = 5 // seconds
 
 export class Room {
   id: string
+  code: string
   name: string
   hostId: string
+  hostName: string
   players: Player[]
   state: RoomState
   round: number
@@ -18,6 +20,7 @@ export class Room {
   word: string
   wordHint: string
   drawerId: string | undefined
+  isPublic: boolean
   strokes: DrawData[][]     // for undo — array of strokes, each stroke is array of points
   currentStroke: DrawData[]
 
@@ -30,8 +33,10 @@ export class Room {
   constructor(
     name: string,
     hostId: string,
+    hostName: string,
     maxPlayers: number,
     maxRounds: number,
+    isPublic: boolean = true,
     callbacks: {
       onTick: (timeLeft: number) => void
       onRoundEnd: (word: string, scores: Record<string, number>) => void
@@ -40,8 +45,10 @@ export class Room {
     }
   ) {
     this.id         = uuid().slice(0, 6).toUpperCase()
+    this.code       = this.generateCode()
     this.name       = name
     this.hostId     = hostId
+    this.hostName   = hostName
     this.players    = []
     this.state      = 'waiting'
     this.round      = 0
@@ -50,6 +57,7 @@ export class Room {
     this.timeLeft   = 0
     this.word       = ''
     this.wordHint   = ''
+    this.isPublic   = isPublic
     this.strokes    = []
     this.currentStroke = []
 
@@ -57,6 +65,18 @@ export class Room {
     this.onRoundEnd   = callbacks.onRoundEnd
     this.onGameOver   = callbacks.onGameOver
     this.onRoundStart = callbacks.onRoundStart
+  }
+
+  /**
+   * Generate a random 6-character room code
+   */
+  private generateCode(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    let code = ''
+    for (let i = 0; i < 6; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length))
+    }
+    return code
   }
 
   // ─── Players ───────────────────────────────────────────────────────────────
@@ -240,6 +260,8 @@ export class Room {
       timeLeft: this.timeLeft,
       wordHint: this.wordHint,
       drawerId: this.drawerId,
+      code: this.code,
+      isPublic: this.isPublic,
     }
   }
 }
