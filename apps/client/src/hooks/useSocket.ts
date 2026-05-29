@@ -7,7 +7,7 @@ let socketInstance: Socket | null = null
 
 export function getSocket(): Socket {
   if (!socketInstance) {
-    socketInstance = io('http://localhost:3001', { autoConnect: false })
+    socketInstance = io('http://localhost:5000', { autoConnect: false })
   }
   return socketInstance
 }
