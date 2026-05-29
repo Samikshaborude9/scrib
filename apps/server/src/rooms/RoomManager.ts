@@ -10,8 +10,8 @@ export class RoomManager {
     this.io = io
   }
 
-  createRoom(name: string, hostId: string, maxPlayers: number, maxRounds: number): Room {
-    const room = new Room(name, hostId, maxPlayers, maxRounds, {
+  createRoom(name: string, hostId: string, hostName: string, maxPlayers: number, maxRounds: number, isPublic: boolean = true): Room {
+    const room = new Room(name, hostId, hostName, maxPlayers, maxRounds, isPublic, {
       onTick: (timeLeft) => {
         this.io.to(room.id).emit('timer_tick', timeLeft)
       },
@@ -42,6 +42,17 @@ export class RoomManager {
 
   getRoom(roomId: string): Room | undefined {
     return this.rooms.get(roomId)
+  }
+
+  getRoomByCode(code: string): Room | undefined {
+    for (const room of this.rooms.values()) {
+      if (room.code === code) return room
+    }
+    return undefined
+  }
+
+  getAllRooms(): Room[] {
+    return [...this.rooms.values()]
   }
 
   getOpenRooms(): Room[] {

@@ -5,7 +5,9 @@ import cors from 'cors'
 import dotenv from 'dotenv'
 import mongoose from 'mongoose'
 import { authRouter } from './routes/authroutes'
+import { createLobbyRoutes } from './routes/lobbyroutes'
 import { registerSocketHandlers } from './socket/socketHandlers'
+import { RoomManager } from './rooms/RoomManager'
 
 dotenv.config()
 
@@ -20,15 +22,19 @@ const io = new Server(httpServer, {
   },
 })
 
+// Create RoomManager instance (shared between socket and REST routes)
+const roomManager = new RoomManager(io)
+
 app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }))
 app.use(express.json())
 
 // REST routes
 app.use('/api/auth', authRouter)
+app.use('/api/lobby', createLobbyRoutes(roomManager))
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }))
 
 // Socket.IO
-registerSocketHandlers(io)
+registerSocketHandlers(io, roomManager)
 
 // DB + Start
 const PORT = process.env.PORT || 3001
