@@ -49,10 +49,28 @@ export interface Room {
   word?: string        // only sent to drawer
   wordHint?: string    // underscores like "_ _ _ _ _"
   drawerId?: string
+  code?: string        // room code for joining
+  isPublic?: boolean   // whether room is visible in lobby
+}
+
+// ─── Lobby Room (display in lobby list) ───────────────────────────────────────
+export interface LobbyRoom {
+  id: string
+  code: string
+  name: string
+  host: string
+  currentPlayers: number
+  maxPlayers: number
+  status: 'waiting' | 'in-progress' | 'finished'
+  isPublic: boolean
 }
 
 // ─── Socket events — Client → Server ─────────────────────────────────────────
 export interface ClientEvents {
+  'lobby:join': () => void
+  'lobby:leave': () => void
+  'room:create': (payload: { name: string; maxPlayers: number; isPublic: boolean }) => void
+  'room:join': (payload: { code: string }) => void
   join_room: (payload: { roomId: string; token: string }) => void
   create_room: (payload: { name: string; maxPlayers: number; maxRounds: number; token: string }) => void
   leave_room: () => void
@@ -65,6 +83,10 @@ export interface ClientEvents {
 
 // ─── Socket events — Server → Client ─────────────────────────────────────────
 export interface ServerEvents {
+  'lobby:rooms': (rooms: LobbyRoom[]) => void
+  'lobby:online': (count: number) => void
+  'room:joined': (payload: { roomId: string }) => void
+  'room:error': (payload: { message: string }) => void
   room_joined: (room: Room) => void
   room_created: (room: Room) => void
   room_updated: (room: Room) => void
