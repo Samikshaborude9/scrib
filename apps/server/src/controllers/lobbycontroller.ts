@@ -56,6 +56,13 @@ export class LobbyController {
   }
 
   /**
+   * Create a new room
+   */
+  createRoom(name: string, hostId: string, hostName: string, maxPlayers: number, isPublic: boolean) {
+    return this.roomManager.createRoom(name, hostId, hostName, maxPlayers, 3, isPublic)
+  }
+
+  /**
    * Convert Room to LobbyRoom for display
    */
   private roomToLobbyRoom(room: any): LobbyRoom {

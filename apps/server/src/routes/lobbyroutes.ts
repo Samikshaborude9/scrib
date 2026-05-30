@@ -1,6 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { LobbyController } from '../controllers/lobbycontroller'
 import { RoomManager } from '../rooms/RoomManager'
+import { verifyToken, AuthRequest } from '../middlewares/verifyToken'
+import { Player } from '@scribble/types'
 
 export function createLobbyRoutes(roomManager: RoomManager): Router {
   const router = Router()
@@ -140,6 +142,71 @@ export function createLobbyRoutes(roomManager: RoomManager): Router {
         success: false,
         error: 'Validation failed',
         joinable: false,
+      })
+    }
+  })
+
+  /**
+   * POST /api/lobby/room
+   * Create a new room
+   */
+  router.post('/room', verifyToken, (req: AuthRequest, res: Response) => {
+    try {
+      const { name, maxPlayers, isPublic } = req.body
+      const hostId = req.userId || 'unknown'
+      const hostName = req.username || 'Unknown'
+
+      if (!name || name.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Room name is required',
+        })
+      }
+
+      if (!maxPlayers || maxPlayers < 2 || maxPlayers > 12) {
+        return res.status(400).json({
+          success: false,
+          error: 'Max players must be between 2 and 12',
+        })
+      }
+
+      const room = lobbyController.createRoom(
+        name.trim(),
+        hostId,
+        hostName,
+        maxPlayers,
+        isPublic !== false
+      )
+
+      // Add host as first player
+      const hostPlayer: Player = {
+        id: hostId,
+        userId: hostId,
+        username: hostName,
+        score: 0,
+        isDrawing: false,
+        hasGuessed: false,
+      }
+      room.addPlayer(hostPlayer)
+
+      res.status(201).json({
+        success: true,
+        data: {
+          id: room.id,
+          code: room.code,
+          name: room.name,
+          host: room.hostName,
+          currentPlayers: room.players.length,
+          maxPlayers: room.maxPlayers,
+          status: 'waiting',
+          isPublic: room.isPublic,
+        },
+      })
+    } catch (error) {
+      console.error('Failed to create room:', error)
+      res.status(500).json({
+        success: false,
+        error: 'Failed to create room',
       })
     }
   })

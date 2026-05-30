@@ -115,6 +115,30 @@ class LobbyService {
   }
 
   /**
+   * Create a new room
+   */
+  async createRoom(
+    name: string,
+    maxPlayers: number,
+    isPublic: boolean
+  ): Promise<LobbyRoom | null> {
+    try {
+      const response = await api.post<ApiResponse<LobbyRoom>>('/lobby/room', {
+        name,
+        maxPlayers,
+        isPublic,
+      })
+      if (response.data.success && response.data.data) {
+        return response.data.data
+      }
+      return null
+    } catch (error) {
+      console.error('Failed to create room:', error)
+      throw error
+    }
+  }
+
+  /**
    * Search rooms by name (optional feature)
    */
   async searchRooms(query: string): Promise<LobbyRoom[]> {

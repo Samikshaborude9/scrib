@@ -148,16 +148,22 @@ const CreateRoomModal = ({
   onCreate,
 }: {
   onClose: () => void;
-  onCreate: (name: string, maxPlayers: number, isPublic: boolean) => void;
+  onCreate: (name: string, maxPlayers: number, isPublic: boolean) => Promise<void>;
 }) => {
   const [name, setName] = useState("");
   const [maxPlayers, setMaxPlayers] = useState(8);
   const [isPublic, setIsPublic] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim()) return;
-    onCreate(name.trim(), maxPlayers, isPublic);
+    if (!name.trim() || isLoading) return;
+    setIsLoading(true);
+    try {
+      await onCreate(name.trim(), maxPlayers, isPublic);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -244,16 +250,17 @@ const CreateRoomModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/5 transition"
+              disabled={isLoading}
+              className="flex-1 py-2.5 rounded-xl border border-white/10 text-white/60 text-sm font-semibold hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={!name.trim()}
+              disabled={!name.trim() || isLoading}
               className="flex-1 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-bold transition"
             >
-              Create Room 🚀
+              {isLoading ? "Creating..." : "Create Room 🚀"}
             </button>
           </div>
         </form>
@@ -348,14 +355,24 @@ export default function Lobby() {
     socket?.emit("room:join", { code });
   };
 
-  const handleCreateRoom = (
+  const handleCreateRoom = async (
     name: string,
     maxPlayers: number,
     isPublic: boolean
   ) => {
-    const socket = getSocket();
-    socket?.emit("room:create", { name, maxPlayers, isPublic });
-    setShowCreate(false);
+    try {
+      setJoinError("");
+      const newRoom = await lobbyService.createRoom(name, maxPlayers, isPublic);
+      if (newRoom) {
+        setShowCreate(false);
+        navigate(`/room/${newRoom.id}`);
+      } else {
+        setJoinError("Failed to create room");
+      }
+    } catch (error) {
+      console.error("Error creating room:", error);
+      setJoinError("Error creating room. Please try again.");
+    }
   };
 
   // ── Derived data ──────────────────────────────────────────────────────────
